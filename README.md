@@ -15,7 +15,7 @@ conversationId → LangGraph thread_id
         ↓
 SqliteSaver loads persistent checkpoint
         ↓
-LangChain agent + Groq/OpenAI model
+LangChain agent + OpenAI model
         ├─ direct answer
         ├─ catalogue_search
         ├─ inventory_check
@@ -37,7 +37,7 @@ See `ARCHITECTURE.md` for a file-by-file walkthrough and Q&A guide.
 ## Features
 
 - LangChain v1 `createAgent` orchestration
-- Groq by default, with OpenAI as a configurable alternative
+- OpenAI `gpt-4.1-mini` through LangChain's official OpenAI integration
 - Zod-validated catalogue, inventory, policy, calculator, and handoff tools
 - Product comparison, personalized recommendations, size guidance, wishlist, and safe order drafts
 - 40 demo products across eight clothing categories with colour, size, and stock variants
@@ -70,7 +70,7 @@ postman_collection.json
 ## Requirements
 
 - Node.js 20 or newer (Node.js 22 LTS recommended; `.nvmrc` is included)
-- A Groq or OpenAI API key
+- An OpenAI API key
 - Optional Tavily key for live web search
 
 ## Backend setup
@@ -86,12 +86,8 @@ Configure `.env`:
 
 ```env
 PORT=3000
-LLM_PROVIDER=groq
-GROQ_API_KEY=your_groq_key
-GROQ_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
-
-# Optional OpenAI alternative
-OPENAI_API_KEY=
+LLM_PROVIDER=openai
+OPENAI_API_KEY=your_openai_key
 OPENAI_MODEL=gpt-4.1-mini
 
 # Optional current-information search
@@ -176,7 +172,7 @@ Import `postman_collection.json` for direct-answer, calculator, ambiguity, memor
 
 ### Faculty model note
 
-The deployed model is Meta Llama 4 Scout served by Groq. `ChatOpenAI` is used as an OpenAI-compatible LangChain adapter and does not mean the live model is OpenAI. The architecture follows the Hugging Face/Ollama conditions in the faculty FAQ—LangChain orchestrates tool use, the LLM is one component, and the project is backend-first rather than turnkey or UI-only—but Groq itself is not explicitly named in the allowed-provider list. Explain this limitation honestly or select `LLM_PROVIDER=openai` with a funded OpenAI key if strict provider compliance is required.
+The local default and public Render deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration. This follows the faculty FAQ's recommended provider choice. LangChain—not the model alone—controls reasoning, registered tool calls, observations, and the final response. Express validation, deterministic tools, SQLite memory, structured parsing, and error handling remain separate components. Model limitations include provider quota/rate limits, occasional imperfect tool selection, and probabilistic long-history summaries.
 
 ## Optional Facebook Messenger connection
 
@@ -184,7 +180,7 @@ The webhook adapter is implemented but stays inactive until Meta credentials are
 
 ## Render deployment
 
-The included `render.yaml` creates a free Singapore-region Node web service named `styleflow-bd-agent`, builds the React frontend, starts Express, checks `/health`, and exposes the application at an `onrender.com` address. In Render, create a new Blueprint from the connected Git repository and enter `GROQ_API_KEY` plus `TAVILY_API_KEY` when prompted.
+The included `render.yaml` creates a free Singapore-region Node web service named `styleflow-bd-agent`, builds the React frontend, starts Express, checks `/health`, and exposes the application at an `onrender.com` address. In Render, create a new Blueprint from the connected Git repository and enter `OPENAI_API_KEY` plus `TAVILY_API_KEY` when prompted.
 
 Render free services can sleep after inactivity and their local filesystem is ephemeral. SQLite memory works while the instance remains active, but may reset after a restart, redeploy, or sleep cycle. Local development retains file-backed SQLite memory.
 

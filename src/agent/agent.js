@@ -31,14 +31,6 @@ Conversation:
 {messages}`;
 
 export function getLlmConfiguration() {
-  const provider = (process.env.LLM_PROVIDER || "groq").toLowerCase();
-  if (provider === "groq") {
-    return {
-      provider,
-      configured: Boolean(process.env.GROQ_API_KEY),
-      model: process.env.GROQ_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct",
-    };
-  }
   return {
     provider: "openai",
     configured: Boolean(process.env.OPENAI_API_KEY),
@@ -66,16 +58,12 @@ export function getAgent() {
 
   const llm = getLlmConfiguration();
   if (!llm.configured) {
-    const variable = llm.provider === "groq" ? "GROQ_API_KEY" : "OPENAI_API_KEY";
-    throw new Error(`${variable} is missing from the environment.`);
+    throw new Error("OPENAI_API_KEY is missing from the environment.");
   }
 
   const model = new ChatOpenAI({
     model: llm.model,
-    apiKey: llm.provider === "groq" ? process.env.GROQ_API_KEY : process.env.OPENAI_API_KEY,
-    ...(llm.provider === "groq" && {
-      configuration: { baseURL: "https://api.groq.com/openai/v1" },
-    }),
+    apiKey: process.env.OPENAI_API_KEY,
     temperature: 0.2,
     timeout: 30_000,
     maxRetries: 2,

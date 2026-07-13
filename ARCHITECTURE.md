@@ -65,7 +65,7 @@ The server still starts and all ten local business/calculation tools remain regi
 
 ### Which model is used, and what are its limitations?
 
-The deployed configuration uses Meta Llama 4 Scout through Groq's OpenAI-compatible API. Groq was selected for fast responses and accessible quota; `ChatOpenAI` is the LangChain adapter, not a claim that the model is from OpenAI. Limitations include provider quotas, occasional imperfect tool choices, and imperfect long-history summarization. OpenAI remains a configurable alternative. Because the faculty FAQ explicitly names OpenAI, Hugging Face and Ollama but not Groq, provider eligibility should be explained honestly rather than misrepresented.
+The local default and public deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration, matching the faculty FAQ's recommended provider. The model was selected because it supports reliable structured tool calling while remaining suitable for this small demonstration agent. It is only one component: LangChain controls the agent loop, tools provide trusted observations, Express validates requests, and SQLite persists thread state. Limitations include provider quota/rate limits, occasional imperfect tool selection, and probabilistic long-history summarization.
 
 ### What changed from RAM memory?
 

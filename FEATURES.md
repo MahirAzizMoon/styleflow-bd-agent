@@ -32,7 +32,7 @@ StyleFlow BD is a backend-first JavaScript agent, not a turnkey or UI-only chatb
 
 ## Model and orchestration
 
-The deployed model is Meta Llama 4 Scout served by Groq through LangChain's OpenAI-compatible adapter. OpenAI is configurable as an alternative. The LLM is one component of the system: it does not replace Express validation, LangChain orchestration, deterministic tools, SQLite memory, structured parsing, or error handling. Provider quota limits and imperfect long-history recall are documented limitations.
+The local default and public deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration. The LLM is one component of the system: it does not replace Express validation, LangChain orchestration, deterministic tools, SQLite memory, structured parsing, or error handling. Provider quota limits, probabilistic tool selection, and model-generated long-history summaries are documented limitations.
 
 ## Facebook Messenger
 

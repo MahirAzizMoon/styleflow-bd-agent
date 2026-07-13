@@ -11,7 +11,7 @@ export function notFoundHandler(req, res) {
 
 export function errorHandler(error, req, res, _next) {
   const requestId = error?.requestId || req.requestId;
-  const missingKey = /(?:OPENAI|GROQ)_API_KEY/.test(error?.message || "");
+  const missingKey = /OPENAI_API_KEY/.test(error?.message || "");
   const rateLimited =
     error?.status === 429 ||
     error?.statusCode === 429 ||
