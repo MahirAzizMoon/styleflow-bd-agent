@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm install --no-audit --no-fund && npm --prefix frontend install --no-audit --no-fund && npm run build
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm install --frozen-lockfile && pnpm run build
     startCommand: npm start
     healthCheckPath: /health
     autoDeployTrigger: commit

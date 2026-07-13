@@ -2,6 +2,7 @@
   "name": "styleflow-bd-boutique-agent",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@9.15.9",
   "description": "Business-specific LangChain sales and inventory agent for a fictional Bangladeshi Facebook clothing boutique.",
   "type": "module",
   "main": "src/index.js",
