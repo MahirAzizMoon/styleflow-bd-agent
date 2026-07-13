@@ -4,7 +4,7 @@ StyleFlow BD is a backend-first JavaScript agent, not a turnkey or UI-only chatb
 
 ## Customer-facing capabilities
 
-- Visual product cards with trusted catalogue prices, variants, and 40 product-ID-specific outfit photographs
+- Visual product cards with trusted catalogue prices, variants, and 40 product-ID-specific outfit photographs; singular requests return one card and each new turn replaces the previous grid
 - Personalized top-three recommendations by occasion, budget, size, color, and category
 - Two-to-four product comparison by price, description, occasions, colors, sizes, and stock
 - Demo size chart with chest-based starting-size recommendation and fit disclaimer

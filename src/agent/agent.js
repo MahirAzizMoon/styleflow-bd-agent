@@ -18,6 +18,7 @@ import { sizeGuideTool } from "./tools/sizeGuide.js";
 import { outfitRecommendationTool } from "./tools/recommender.js";
 import { wishlistTool } from "./tools/wishlist.js";
 import { orderDraftTool } from "./tools/orderDraft.js";
+import { PRODUCTS } from "../data/store.js";
 
 let cachedAgent;
 let cachedToolNames = [];
@@ -87,6 +88,41 @@ function calledTools(messages) {
   return names;
 }
 
+function exactProductIdInRequest(request) {
+  const normalized = request.toLowerCase();
+  return PRODUCTS.find((product) =>
+    normalized.includes(product.id.toLowerCase()) || normalized.includes(product.name.toLowerCase())
+  )?.id;
+}
+
+function requestsOneProduct(request) {
+  return /\b(?:one|single)\s+(?:outfit|product|item|card|image|picture|photo)\b/i.test(request) ||
+    /\b(?:just|only)\s+(?:one|this|that)\b/i.test(request);
+}
+
+/** Keep visual-card tool arguments aligned with an exact or explicitly singular user request. */
+export function constrainCatalogueToolCalls(response, request) {
+  const calls = response?.tool_calls;
+  if (!Array.isArray(calls) || calls.length === 0) return response;
+
+  const exactProductId = exactProductIdInRequest(request);
+  const limitToOne = Boolean(exactProductId) || requestsOneProduct(request);
+  if (!limitToOne) return response;
+
+  response.tool_calls = calls.map((call) => {
+    if (call?.name !== "catalogue_search") return call;
+    return {
+      ...call,
+      args: {
+        ...(call.args || {}),
+        ...(exactProductId ? { query: exactProductId, category: "" } : {}),
+        limit: 1,
+      },
+    };
+  });
+  return response;
+}
+
 /** Return a mandatory tool only for an explicit user intent that cannot be answered safely without it. */
 export function requiredToolForLatestTurn(messages = [], { tavilyAvailable = false } = {}) {
   const turn = latestTurn(messages);
@@ -114,13 +150,15 @@ export function requiredToolForLatestTurn(messages = [], { tavilyAvailable = fal
 function explicitToolRoutingMiddleware(tavilyAvailable) {
   return createMiddleware({
     name: "ExplicitToolRoutingMiddleware",
-    wrapModelCall: (request, handler) => {
+    wrapModelCall: async (request, handler) => {
+      const turn = latestTurn(request.messages);
+      const userRequest = turn.length > 0 ? messageText(turn[0]) : "";
       const requiredTool = requiredToolForLatestTurn(request.messages, { tavilyAvailable });
-      if (!requiredTool) return handler(request);
-      return handler({
+      const response = await handler(requiredTool ? {
         ...request,
         toolChoice: { type: "function", function: { name: requiredTool } },
-      });
+      } : request);
+      return constrainCatalogueToolCalls(response, userRequest);
     },
   });
 }

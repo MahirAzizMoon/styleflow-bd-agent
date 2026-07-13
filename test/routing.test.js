@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { requiredToolForLatestTurn } from "../src/agent/agent.js";
+import { constrainCatalogueToolCalls, requiredToolForLatestTurn } from "../src/agent/agent.js";
 
 function aiToolCall(name) {
   return { role: "assistant", content: "", tool_calls: [{ name, args: {}, id: `call-${name}` }] };
@@ -66,4 +66,23 @@ test("comparison by name uses catalogue lookup and then product_compare", () => 
     ]),
     null
   );
+});
+
+test("singular visual requests constrain catalogue_search to one result", () => {
+  const response = aiToolCall("catalogue_search");
+  response.tool_calls[0].args = { query: "blue kurti", category: "kurti" };
+  constrainCatalogueToolCalls(response, "Show me one picture of a blue kurti.");
+  assert.equal(response.tool_calls[0].args.limit, 1);
+  assert.equal(response.tool_calls[0].args.query, "blue kurti");
+});
+
+test("exact product requests override broad catalogue arguments", () => {
+  const response = aiToolCall("catalogue_search");
+  response.tool_calls[0].args = { query: "kurti", category: "kurti" };
+  constrainCatalogueToolCalls(response, "Show only the Nilima Embroidered Kurti picture.");
+  assert.deepEqual(response.tool_calls[0].args, {
+    query: "SF-KURTI-101",
+    category: "",
+    limit: 1,
+  });
 });

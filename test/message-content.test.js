@@ -27,10 +27,17 @@ test("rich response data only includes products from the latest user turn", () =
 
 test("the frontend selects only the newest product grid for display", () => {
   const messages = [
-    { id: "old", products: [{ id: "OLD-1" }] },
-    { id: "text-only" },
-    { id: "new", products: [{ id: "NEW-1" }] },
+    { id: "old", role: "assistant", products: [{ id: "OLD-1" }] },
+    { id: "text-only", role: "assistant" },
+    { id: "new", role: "assistant", products: [{ id: "NEW-1" }] },
   ];
 
   assert.equal(getLatestProductMessageId(messages), "new");
+});
+
+test("the frontend hides old products as soon as a new turn starts", () => {
+  const oldGrid = { id: "old", role: "assistant", products: [{ id: "OLD-1" }] };
+  assert.equal(getLatestProductMessageId([oldGrid, { id: "next", role: "user", content: "Show another" }]), null);
+  assert.equal(getLatestProductMessageId([oldGrid, { id: "reply", role: "assistant", content: "No match", products: [] }]), null);
+  assert.equal(getLatestProductMessageId([oldGrid, { id: "error", role: "error", content: "Failed" }]), null);
 });

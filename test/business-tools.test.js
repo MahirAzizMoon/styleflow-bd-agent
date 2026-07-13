@@ -74,6 +74,13 @@ test("an exact product name or ID returns only that visual card", () => {
   );
 });
 
+test("a singular catalogue request returns only one product card", () => {
+  assert.deepEqual(
+    searchCatalogue({ query: "blue kurti", color: "blue", category: "kurti", limit: 1 }).map((product) => product.id),
+    ["SF-KURTI-101"]
+  );
+});
+
 test("empty optional provider fields are treated as absent filters", async () => {
   const { catalogueSearchTool } = await import("../src/agent/tools/catalogue.js");
   const result = JSON.parse(await catalogueSearchTool.invoke({

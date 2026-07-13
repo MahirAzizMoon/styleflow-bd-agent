@@ -31,7 +31,7 @@ function matchesNaturalQuery(value, query) {
   return terms.length === 0 || terms.some((term) => contains(value, term));
 }
 
-export function searchCatalogue({ query, category, color, size, occasion, maxPrice }) {
+export function searchCatalogue({ query, category, color, size, occasion, maxPrice, limit }) {
   const normalizedSize = size?.toUpperCase();
   const normalizedCategory = normalizeCategory(category);
   const normalizedQuery = query?.toLowerCase().trim();
@@ -45,7 +45,7 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
   // Some tool-calling models emit 0 for an omitted optional number. Treat it
   // as "no budget supplied" instead of rejecting the entire model response.
   const normalizedMaxPrice = maxPrice > 0 ? maxPrice : undefined;
-  return cataloguePool.filter((product) => {
+  const matches = cataloguePool.filter((product) => {
     const searchable = [
       product.id,
       product.name,
@@ -72,6 +72,8 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
     occasions: product.occasions,
     availableVariants: product.variants.filter((variant) => variant.stock > 0),
   }));
+  const normalizedLimit = Number.isInteger(limit) && limit > 0 ? limit : matches.length;
+  return matches.slice(0, normalizedLimit);
 }
 
 export const catalogueSearchTool = tool(
@@ -94,6 +96,7 @@ export const catalogueSearchTool = tool(
       size: optionalText,
       occasion: optionalText,
       maxPrice: z.number().nonnegative().optional().describe("Maximum product price in BDT, excluding delivery. Use 0 only when the customer did not provide a maximum budget."),
+      limit: z.number().int().min(1).max(40).optional().describe("Maximum number of product cards to return. Use 1 when the customer asks for one or a single outfit."),
     }),
   }
 );
