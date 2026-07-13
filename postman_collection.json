@@ -1,0 +1,126 @@
+{
+  "info": {
+    "name": "StyleFlow BD Facebook Boutique Agent",
+    "description": "Business-specific no-tool, catalogue, stock, policy, calculation, ambiguity, failure, handoff, web, and persistent-memory tests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "conversationId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Direct Chat Response - No Tool",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"message\": \"Hi, what kind of shop is this?\"\n}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    },
+    {
+      "name": "Business Tool - Catalogue and Inventory",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"message\": \"Show me a blue Eid outfit under 2500 taka in size L.\"\n}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    },
+    {
+      "name": "Ambiguous Chat Request",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"message\": \"Help me choose the best one.\"\n}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    },
+    {
+      "name": "Memory 1 - Store Name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const data = pm.response.json();",
+              "if (data.conversationId) pm.collectionVariables.set('conversationId', data.conversationId);",
+              "pm.test('conversationId saved', () => pm.expect(data.conversationId).to.be.a('string'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"message\": \"My size is L and my clothing budget is 2500 taka.\"\n}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    },
+    {
+      "name": "Memory 2 - Recall Name",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"message\": \"Recommend an Eid outfit using my preferences.\"\n}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    },
+    {
+      "name": "Memory 3 - Inspect Thread",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const data = pm.response.json();",
+              "pm.test('memory exposes summarization state', () => pm.expect(data.memory.summarized).to.be.a('boolean'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/chat/{{conversationId}}/memory"
+      }
+    },
+    {
+      "name": "Memory 4 - Clear Thread",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/chat/{{conversationId}}/memory"
+      }
+    },
+    {
+      "name": "Invalid Input Failure",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    },
+    {
+      "name": "Invalid Conversation ID",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"conversationId\": \"invalid thread id\",\n  \"message\": \"Hello\"\n}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    },
+    {
+      "name": "Optional Tavily Web Search",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"message\": \"Search the web for a current Bangladeshi fashion trend and cite the source.\"\n}" },
+        "url": "{{baseUrl}}/chat"
+      }
+    }
+  ]
+}

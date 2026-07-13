@@ -1,0 +1,99 @@
+
+===== PAGE 1 =====
+ 
+Sensitivity: Internal 
+The AI Agent Project – Handout 
+ 
+1. Objective of the Project 
+This document is a guide for building your AI Agent project. It translates the session slides into an 
+execution plan that you can follow directly while developing your project. 
+2. What You Are Building 
+You are NOT building a chatbot UI or a simple OpenAI prompt. You are building an AI Agent system 
+capable of reasoning, calling tools, and producing controlled outputs. 
+3. AI Agent Mental Model 
+• 
+User sends a request 
+• 
+Agent controller (LangChain) interprets intent (in case of N8N, Claude Code or similar tool, relevant 
+editor view) 
+• 
+OpenAI LLM performs reasoning 
+• 
+Agent decides whether a tool is required 
+• 
+Tool executes and returns observation 
+• 
+Agent generates the final answer 
+4. Expected Architecture 
+• 
+Your project must be backend-first. The AI logic lives in Node.js with Express and LangChain. React 
+with Vite is optional but encouraged. The code editor can be WebStorm but if students are 
+comfortable with VS Code or Cursor or any other standard IDE, perfectly fine! In case of N8N, Claude 
+Code or similar tool, relevant editor view must be explained on each action like Nodes used and 
+configured, API key selection, task execution on each node, final output in the desired external tool. 
+5. Recommended Folder Structure 
+backend/ 
+  ├─ agent/ (agent logic, tools, prompts) 
+  ├─ routes/ (API endpoints) 
+  ├─ index.js (server entry) 
+  ├─ .env 
+frontend/ (optional React + Vite UI) 
+6. Development Workflow 
+1. Initialize Node.js project and Express server 
+2. Create a /chat API endpoint in the IDE editor  
+3. Connect LLM (OpenAI) 
+4. Define agent prompt and reasoning logic with LangChain 
+5. Register at least one tool (Tavily search is fine, but you may try other pre-built tools also) 
+6. Test agent using Postman or curl before UI work 
+7. Add React frontend only after backend is stable 
+
+===== PAGE 2 =====
+ 
+Sensitivity: Internal 
+8. For N8N or similar GUI-based tool, conduct all the tasks above in the N8N editor and demonstrate 
+7. Testing Requirements 
+• 
+Question that does not require tools 
+• 
+Question that must call a tool 
+• 
+Ambiguous user request 
+• 
+Failure scenario (API error or invalid input) 
+8. Live Demo Readiness 
+Your agent must run locally and be accessible through a public URL on demo day. Test your setup before 
+class. For free public URL hosting, you may use render.com or any other of your preference like 
+Huggingface Space etc. If your AI agent is based on a scheduler, and you are using N8N or similar tool, 
+demonstrate that the desired output is available on the receiving tool as per the schedule and desired 
+prompt. 
+9. Project Grading Rubric (Team Evaluation) 
+• 
+Architecture & Structure Explanation by the team– 30% 
+• 
+Live Working Demo of the AI Agent, Tool, LLM – 50% 
+• 
+Q&A – 20% 
+Each team member must be able to explain the full system. Individual grades may be adjusted based on 
+contribution and Q&A. 
+11. One-Page Pre-Demo Checklist (For Each Team’s Internal Preparation) 
+• 
+Agent role and scope clearly defined 
+• 
+Backend API runs without errors 
+• 
+LangChain/ N8N/ Claude Code agent initializes correctly 
+• 
+At least one tool integrated and tested 
+• 
+Logs and error handling implemented 
+• 
+Public demo URL working if applicable 
+• 
+Student(s) can explain agent flow end-to-end 
+12. Final Advice from the Guest Faculty 
+Real-world AI systems evolve through debugging and iteration. Focus on understanding why your agent 
+behaves the way it does rather than chasing perfect outputs. 
+ 
+ 
+ 
+Dr. Asif Naimur Rashid 

@@ -1,0 +1,35 @@
+{
+  "name": "styleflow-bd-boutique-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Business-specific LangChain sales and inventory agent for a fictional Bangladeshi Facebook clothing boutique.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "build": "npm --prefix frontend run build",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "tunnel": "sh scripts/start-tunnel.sh",
+    "check": "node --check src/index.js && node --check src/agent/agent.js && node --check src/agent/memory.js && node --check src/agent/tools/calculator.js && node --check src/agent/tools/catalogue.js && node --check src/agent/tools/inventory.js && node --check src/agent/tools/storePolicy.js && node --check src/agent/tools/humanHandoff.js && node --check src/routes/chat.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.2.2",
+    "@langchain/langgraph": "^1.4.7",
+    "@langchain/langgraph-checkpoint-sqlite": "^1.0.3",
+    "@langchain/openai": "^1.5.5",
+    "@langchain/tavily": "^1.2.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "langchain": "^1.5.3",
+    "zod": "^4.4.3"
+  },
+  "overrides": {
+    "better-sqlite3": "11.10.0"
+  }
+}

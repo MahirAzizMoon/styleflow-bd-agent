@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="ChatFlow — a tool-using AI assistant with conversation memory." />
+    <title>ChatFlow AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <div><strong>ChatFlow</strong><span>AI Agent</span></div>
+        </div>
+
+        <button class="new-chat" id="newChat" type="button"><span>＋</span> New conversation</button>
+
+        <div class="agent-card">
+          <div class="agent-avatar">CF</div>
+          <div><strong>ChatFlow Agent</strong><span id="connectionLabel">Connecting…</span></div>
+          <i class="status-dot" id="statusDot"></i>
+        </div>
+
+        <div class="capabilities">
+          <p>CAPABILITIES</p>
+          <div><span>⌁</span><strong>Conversation memory</strong></div>
+          <div><span>＋</span><strong>Exact calculations</strong></div>
+          <div><span>✦</span><strong>Helpful responses</strong></div>
+        </div>
+
+        <div class="sidebar-note">Memory lasts while the local server is running.</div>
+      </aside>
+
+      <section class="chat-panel">
+        <header class="chat-header">
+          <div>
+            <p class="eyebrow">REQUEST–RESPONSE AGENT</p>
+            <h1>Your thoughtful AI workspace</h1>
+          </div>
+          <div class="thread-pill" id="threadPill">New thread</div>
+        </header>
+
+        <div class="messages" id="messages" aria-live="polite">
+          <div class="welcome">
+            <div class="welcome-icon">✦</div>
+            <p class="eyebrow">MEET CHATFLOW</p>
+            <h2>What can we work through?</h2>
+            <p>Ask a question, run a calculation, or share something you want me to remember for this conversation.</p>
+            <div class="suggestions">
+              <button type="button" data-prompt="Explain what an AI agent is in simple language."><span>◎</span> Explain AI agents</button>
+              <button type="button" data-prompt="Calculate 35 percent of 1200."><span>＋</span> Calculate 35% of 1200</button>
+              <button type="button" data-prompt="My project is called ChatFlow. Please remember that."><span>⌁</span> Test conversation memory</button>
+            </div>
+          </div>
+        </div>
+
+        <footer class="composer-wrap">
+          <form class="composer" id="chatForm">
+            <textarea id="messageInput" rows="1" maxlength="4000" placeholder="Message ChatFlow…" aria-label="Message ChatFlow" required></textarea>
+            <button class="send-button" id="sendButton" type="submit" aria-label="Send message">↑</button>
+          </form>
+          <p class="hint">Press Enter to send · Shift + Enter for a new line</p>
+        </footer>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
