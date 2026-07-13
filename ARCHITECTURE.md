@@ -36,6 +36,35 @@
 ## Why this is an agent
 
 The model is not called directly from the route for a single response. LangChain controls a loop in which the model can inspect context, choose a registered tool, receive the tool observation, and then produce a final answer. `metadata.toolsUsed` provides observable evidence of that decision.
+
+For ordinary messages, OpenAI decides whether a tool is needed. A narrow LangChain middleware guard only makes a tool mandatory when the user explicitly asks for web search or product comparison. This prevents a probabilistic model from refusing an available tool while leaving greetings, clarification, advice, and other tool choices under the normal agent decision flow.
+
+## Likely faculty Q&A
+
+### Why use a singleton checkpointer?
+
+Every request must read and write through the same initialized SQLite checkpointer. Reusing one process-level instance avoids repeatedly opening database connections, keeps setup consistent, and lets every route address conversations through the same persistence layer. The conversation data is still isolated by `thread_id`, not mixed together in the singleton.
+
+### What is a `thread_id`?
+
+It is LangGraph's identifier for one conversation. The API's `conversationId` is validated and mapped directly to `configurable.thread_id`. Supplying the same ID loads the same checkpoint history; using a different ID creates an isolated conversation.
+
+### How does summarization work?
+
+`summarizationMiddleware` estimates the stored conversation length. After `MEMORY_SUMMARY_TRIGGER_TOKENS`, it asks the model to summarize older messages while keeping the configured number of recent messages. The summary prompt preserves user facts such as names, sizes, budgets, colors, and unresolved requests. `GET /chat/:id/memory` exposes `summarized` and an optional `summaryPreview` so this behavior can be demonstrated.
+
+### Why can the agent not simply hallucinate a tool result?
+
+The model may request a registered tool, but application code executes that tool and adds a separate tool-observation message to the LangChain state. Catalogue, inventory, policies, calculations, and order drafts come from deterministic code and trusted local data. The final answer is generated after that observation, and `metadata.toolsUsed` is derived from actual tool calls rather than from the assistant claiming it used one. A model can still phrase an answer imperfectly, which is why the prompt forbids unsupported business claims and tests verify the deterministic tool outputs.
+
+### What happened on restart before and after the SQLite change?
+
+Before this iteration, `MemorySaver` stored checkpoints only in RAM, so stopping Node erased every conversation. Now `SqliteSaver` writes them to `MEMORY_DB_PATH`; restarting the server and reusing the same `conversationId` reloads the previous messages. On Render's free service the filesystem itself is ephemeral, so redeployment can still reset the database; local persistence survives a normal process restart.
+
+### Why is an explicit tool-routing guard used?
+
+LLM tool selection is probabilistic. When a customer explicitly says “search the web” or “compare these products,” refusing the registered tool would be incorrect. The middleware therefore requires the appropriate tool only for those explicit intents. It does not bypass LangChain: the request stays inside the agent loop, the model supplies validated tool arguments, the real tool runs, and the model receives its observation before answering.
+
 ### Why is SQLite not ideal for multiple cloud instances?
 
 It is a local file. Multiple instances need shared durable storage and coordinated writes, so a production scale-out deployment should use a PostgreSQL checkpointer.

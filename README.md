@@ -48,7 +48,7 @@ See `ARCHITECTURE.md` for a file-by-file walkthrough and Q&A guide.
 - Structured validation, provider, tool, and server errors
 - Request IDs, timing, tool-use, and failure logs
 - React + Vite frontend plus Postman/curl support
-- Visual product cards with eight category-specific outfit photographs, quick actions, customer feedback, and demo analytics
+- Visual product cards with 40 product-ID-specific outfit photographs, quick actions, customer feedback, and demo analytics
 - Credential-gated Meta Messenger webhook adapter
 
 ## Project structure
@@ -172,7 +172,7 @@ Import `postman_collection.json` for direct-answer, calculator, ambiguity, memor
 
 ### Faculty model note
 
-The local default and public Render deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration. This follows the faculty FAQ's recommended provider choice. LangChain—not the model alone—controls reasoning, registered tool calls, observations, and the final response. Express validation, deterministic tools, SQLite memory, structured parsing, and error handling remain separate components. Model limitations include provider quota/rate limits, occasional imperfect tool selection, and probabilistic long-history summaries.
+The local default and public Render deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration. This follows the faculty FAQ's recommended provider choice. LangChain—not the model alone—controls reasoning, registered tool calls, observations, and the final response. Express validation, deterministic tools, SQLite memory, structured parsing, and error handling remain separate components. A narrow LangChain middleware guard requires Tavily or the comparison workflow only when the user explicitly requests those capabilities; ordinary tool selection remains model-directed. Model limitations include provider quota/rate limits, occasional imperfect tool selection for non-explicit intents, and probabilistic long-history summaries.
 
 ## Optional Facebook Messenger connection
 

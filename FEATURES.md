@@ -4,7 +4,7 @@ StyleFlow BD is a backend-first JavaScript agent, not a turnkey or UI-only chatb
 
 ## Customer-facing capabilities
 
-- Visual product cards with trusted catalogue prices, variants, and eight category-specific outfit photographs
+- Visual product cards with trusted catalogue prices, variants, and 40 product-ID-specific outfit photographs
 - Personalized top-three recommendations by occasion, budget, size, color, and category
 - Two-to-four product comparison by price, description, occasions, colors, sizes, and stock
 - Demo size chart with chest-based starting-size recommendation and fit disclaimer
@@ -12,6 +12,7 @@ StyleFlow BD is a backend-first JavaScript agent, not a turnkey or UI-only chatb
 - Conversation-scoped order draft with variant validation, quantity, subtotal, delivery, and total
 - Human handoff reference with a structured next step and no collection of payment secrets
 - Date-stamped Tavily search for current information; catalogue facts remain grounded locally
+- Explicit-intent routing guards require Tavily for requested web searches and the comparison workflow for requested product comparisons
 - English, Bangla, and Banglish responses with LangGraph conversation memory
 - Direct answers and concise clarification questions when no tool is appropriate
 - Structured request IDs, tool metadata, timings, safe errors, and memory counts
@@ -32,7 +33,7 @@ StyleFlow BD is a backend-first JavaScript agent, not a turnkey or UI-only chatb
 
 ## Model and orchestration
 
-The local default and public deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration. The LLM is one component of the system: it does not replace Express validation, LangChain orchestration, deterministic tools, SQLite memory, structured parsing, or error handling. Provider quota limits, probabilistic tool selection, and model-generated long-history summaries are documented limitations.
+The local default and public deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration. The LLM is one component of the system: it does not replace Express validation, LangChain orchestration, deterministic tools, SQLite memory, structured parsing, or error handling. Explicit Tavily and comparison requests have deterministic routing guards; other tool selection remains probabilistic. Provider quota limits and model-generated long-history summaries are documented limitations.
 
 ## Facebook Messenger
 

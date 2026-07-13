@@ -1,6 +1,7 @@
 import { ChatOpenAI } from "@langchain/openai";
 import {
   createAgent,
+  createMiddleware,
   summarizationMiddleware,
   toolRetryMiddleware,
 } from "langchain";
@@ -53,6 +54,77 @@ function readPositiveInteger(value, fallback) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function messageType(message) {
+  return message?.getType?.() || message?._getType?.() || message?.type || message?.role;
+}
+
+function messageText(message) {
+  if (typeof message?.content === "string") return message.content;
+  if (!Array.isArray(message?.content)) return "";
+  return message.content
+    .map((part) => (typeof part === "string" ? part : part?.text || ""))
+    .filter(Boolean)
+    .join("\n");
+}
+
+function latestTurn(messages = []) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const type = messageType(messages[index]);
+    if (type === "human" || type === "user") return messages.slice(index);
+  }
+  return [];
+}
+
+function calledTools(messages) {
+  const names = new Set();
+  for (const message of messages) {
+    const calls = message?.tool_calls ?? message?.additional_kwargs?.tool_calls ?? [];
+    for (const call of calls) {
+      const name = call?.name ?? call?.function?.name;
+      if (name) names.add(name);
+    }
+  }
+  return names;
+}
+
+/** Return a mandatory tool only for an explicit user intent that cannot be answered safely without it. */
+export function requiredToolForLatestTurn(messages = [], { tavilyAvailable = false } = {}) {
+  const turn = latestTurn(messages);
+  if (turn.length === 0) return null;
+
+  const request = messageText(turn[0]);
+  const used = calledTools(turn);
+  const explicitlyRequestsWebSearch =
+    /\b(?:use|call)\s+(?:the\s+)?tavily(?:_search)?\b/i.test(request) ||
+    /\b(?:search|browse|look\s*up|find)\b.{0,40}\b(?:web|internet|online)\b/i.test(request) ||
+    /\b(?:latest|current|recent|today(?:'s)?)\b.{0,50}\b(?:news|development|information|trend|update)s?\b/i.test(request);
+
+  if (tavilyAvailable && explicitlyRequestsWebSearch && !used.has("tavily_search")) {
+    return "tavily_search";
+  }
+
+  const requestsComparison = /\b(?:compare|comparison|versus|vs\.?|differences?\s+between)\b/i.test(request);
+  if (!requestsComparison || used.has("product_compare")) return null;
+
+  const productIds = new Set(request.match(/SF-[A-Z]+-\d+/gi) || []);
+  if (productIds.size >= 2) return "product_compare";
+  return used.has("catalogue_search") ? "product_compare" : "catalogue_search";
+}
+
+function explicitToolRoutingMiddleware(tavilyAvailable) {
+  return createMiddleware({
+    name: "ExplicitToolRoutingMiddleware",
+    wrapModelCall: (request, handler) => {
+      const requiredTool = requiredToolForLatestTurn(request.messages, { tavilyAvailable });
+      if (!requiredTool) return handler(request);
+      return handler({
+        ...request,
+        toolChoice: { type: "function", function: { name: requiredTool } },
+      });
+    },
+  });
+}
+
 export function getAgent() {
   if (cachedAgent) return cachedAgent;
 
@@ -90,6 +162,7 @@ export function getAgent() {
     // The singleton checkpointer is deliberately created outside this function.
     checkpointer: getMemoryCheckpointer(),
     middleware: [
+      explicitToolRoutingMiddleware(tools.some((registeredTool) => registeredTool.name === "tavily_search")),
       toolRetryMiddleware({ maxRetries: 1 }),
       // Prevent very long conversations from growing without limit while
       // retaining the latest turns and a summary of older context.

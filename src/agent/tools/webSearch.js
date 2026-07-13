@@ -27,7 +27,7 @@ export function createWebSearchTool() {
     {
       name: "tavily_search",
       description:
-        "Search the web for current, recent, or externally verifiable information. Provide a concise search query.",
+        "Search the live web for current, recent, or externally verifiable information and source links. Always use this tool when the user explicitly requests Tavily, web search, internet search, online lookup, or recent external news. Provide a concise search query.",
       schema: z.object({
         query: z.string().min(2).max(500).describe("The web search query."),
       }),
