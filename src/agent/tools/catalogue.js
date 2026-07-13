@@ -19,6 +19,9 @@ function matchesNaturalQuery(value, query) {
 
 export function searchCatalogue({ query, category, color, size, occasion, maxPrice }) {
   const normalizedSize = size?.toUpperCase();
+  // Some tool-calling models emit 0 for an omitted optional number. Treat it
+  // as "no budget supplied" instead of rejecting the entire model response.
+  const normalizedMaxPrice = maxPrice > 0 ? maxPrice : undefined;
   return PRODUCTS.filter((product) => {
     const searchable = [
       product.id,
@@ -31,7 +34,7 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
     if (query && !matchesNaturalQuery(searchable, query)) return false;
     if (category && !contains(product.category, category)) return false;
     if (occasion && !product.occasions.some((item) => contains(item, occasion))) return false;
-    if (maxPrice !== undefined && product.price > maxPrice) return false;
+    if (normalizedMaxPrice !== undefined && product.price > normalizedMaxPrice) return false;
     if (color && !product.variants.some((variant) => contains(variant.color, color))) return false;
     if (normalizedSize && !product.variants.some((variant) => variant.size === normalizedSize)) return false;
     return true;
@@ -65,7 +68,7 @@ export const catalogueSearchTool = tool(
       color: optionalText,
       size: optionalText,
       occasion: optionalText,
-      maxPrice: z.number().positive().optional().describe("Maximum product price in BDT, excluding delivery"),
+      maxPrice: z.number().nonnegative().optional().describe("Maximum product price in BDT, excluding delivery. Use 0 only when the customer did not provide a maximum budget."),
     }),
   }
 );

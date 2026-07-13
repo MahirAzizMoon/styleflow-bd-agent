@@ -48,6 +48,16 @@ test("empty optional provider fields are treated as absent filters", async () =>
   assert.ok(result.products.some((product) => product.id === "SF-KURTI-101"));
 });
 
+test("a provider-supplied zero maximum price is treated as no budget filter", async () => {
+  const { catalogueSearchTool } = await import("../src/agent/tools/catalogue.js");
+  const result = JSON.parse(await catalogueSearchTool.invoke({
+    query: "panjabi",
+    maxPrice: 0,
+  }));
+  assert.ok(result.found >= 1);
+  assert.ok(result.products.every((product) => product.price > 0));
+});
+
 test("inventory reports an exact listed variant and stock quantity", () => {
   const result = checkInventory({ productId: "SF-KURTI-101", color: "blue", size: "M" });
   assert.equal(result.found, true);
