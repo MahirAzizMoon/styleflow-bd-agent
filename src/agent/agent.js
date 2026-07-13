@@ -22,7 +22,7 @@ export function getLlmConfiguration() {
     return {
       provider,
       configured: Boolean(process.env.GROQ_API_KEY),
-      model: process.env.GROQ_MODEL || "openai/gpt-oss-20b",
+      model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
     };
   }
   return {

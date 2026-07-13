@@ -17,7 +17,7 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
-        value: openai/gpt-oss-20b
+        value: llama-3.1-8b-instant
       - key: TAVILY_API_KEY
         sync: false
       - key: MEMORY_DB_PATH
