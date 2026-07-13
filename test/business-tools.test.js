@@ -21,11 +21,27 @@ test("every catalogue category has a dedicated uploaded product image", () => {
   const categoryImages = new Map();
   for (const product of PRODUCTS) {
     const imageUrl = getProductImageUrl(product);
-    assert.match(imageUrl, /^\/products\/SF-[A-Z]+-\d+\.jpeg$/);
+    assert.match(imageUrl, /^\/products\/SF-[A-Z]+-\d+\.(?:jpeg|png)$/);
     categoryImages.set(product.category, imageUrl);
   }
   assert.equal(categoryImages.size, 8);
   assert.equal(new Set(categoryImages.values()).size, 8);
+});
+
+test("the first four kurtis have distinct product-specific images", () => {
+  const kurtis = PRODUCTS.filter((product) =>
+    ["SF-KURTI-101", "SF-KURTI-102", "SF-KURTI-103", "SF-KURTI-104"].includes(product.id)
+  );
+  const imageUrls = kurtis.map(getProductImageUrl);
+
+  assert.equal(kurtis.length, 4);
+  assert.equal(new Set(imageUrls).size, 4);
+  assert.deepEqual(imageUrls, [
+    "/products/SF-KURTI-101.jpeg",
+    "/products/SF-KURTI-102.png",
+    "/products/SF-KURTI-103.png",
+    "/products/SF-KURTI-104.png",
+  ]);
 });
 
 test("catalogue search respects budget, occasion, color, and size", () => {

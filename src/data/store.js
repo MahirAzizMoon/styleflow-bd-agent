@@ -30,8 +30,15 @@ const CATEGORY_IMAGE_URLS = {
   top: "/products/SF-TOP-801.jpeg",
 };
 
+const PRODUCT_IMAGE_URLS = {
+  "SF-KURTI-101": "/products/SF-KURTI-101.jpeg",
+  "SF-KURTI-102": "/products/SF-KURTI-102.png",
+  "SF-KURTI-103": "/products/SF-KURTI-103.png",
+  "SF-KURTI-104": "/products/SF-KURTI-104.png",
+};
+
 export function getProductImageUrl(product) {
-  return CATEGORY_IMAGE_URLS[product?.category] || "/boutique-hero.jpg";
+  return PRODUCT_IMAGE_URLS[product?.id] || CATEGORY_IMAGE_URLS[product?.category] || "/boutique-hero.jpg";
 }
 
 function catalogueItem(id, name, category, description, occasions, price, colors, sizes, stockSeed) {
