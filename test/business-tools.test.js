@@ -45,6 +45,17 @@ test("catalogue search returns no product when filters cannot all be satisfied",
   assert.deepEqual(searchCatalogue({ category: "saree", size: "XL" }), []);
 });
 
+test("an exact product name or ID returns only that visual card", () => {
+  assert.deepEqual(
+    searchCatalogue({ query: "Show me the Nilima Embroidered Kurti as a visual card" }).map((product) => product.id),
+    ["SF-KURTI-101"]
+  );
+  assert.deepEqual(
+    searchCatalogue({ query: "Please show SF-SAREE-302" }).map((product) => product.id),
+    ["SF-SAREE-302"]
+  );
+});
+
 test("empty optional provider fields are treated as absent filters", async () => {
   const { catalogueSearchTool } = await import("../src/agent/tools/catalogue.js");
   const result = JSON.parse(await catalogueSearchTool.invoke({

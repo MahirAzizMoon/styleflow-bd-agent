@@ -34,10 +34,18 @@ function matchesNaturalQuery(value, query) {
 export function searchCatalogue({ query, category, color, size, occasion, maxPrice }) {
   const normalizedSize = size?.toUpperCase();
   const normalizedCategory = normalizeCategory(category);
+  const normalizedQuery = query?.toLowerCase().trim();
+  const exactRequestedProduct = normalizedQuery
+    ? PRODUCTS.find((product) =>
+        normalizedQuery.includes(product.id.toLowerCase()) ||
+        normalizedQuery.includes(product.name.toLowerCase())
+      )
+    : undefined;
+  const cataloguePool = exactRequestedProduct ? [exactRequestedProduct] : PRODUCTS;
   // Some tool-calling models emit 0 for an omitted optional number. Treat it
   // as "no budget supplied" instead of rejecting the entire model response.
   const normalizedMaxPrice = maxPrice > 0 ? maxPrice : undefined;
-  return PRODUCTS.filter((product) => {
+  return cataloguePool.filter((product) => {
     const searchable = [
       product.id,
       product.name,
