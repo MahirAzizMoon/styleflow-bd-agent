@@ -12,7 +12,7 @@
     "build": "npm --prefix frontend run build",
     "frontend:dev": "npm --prefix frontend run dev",
     "tunnel": "sh scripts/start-tunnel.sh",
-    "check": "node --check src/index.js && node --check src/agent/agent.js && node --check src/agent/memory.js && node --check src/agent/tools/calculator.js && node --check src/agent/tools/catalogue.js && node --check src/agent/tools/inventory.js && node --check src/agent/tools/storePolicy.js && node --check src/agent/tools/humanHandoff.js && node --check src/routes/chat.js",
+    "check": "node --check src/index.js && node --check src/agent/agent.js && node --check src/agent/memory.js && node --check src/agent/tools/calculator.js && node --check src/agent/tools/catalogue.js && node --check src/agent/tools/inventory.js && node --check src/agent/tools/storePolicy.js && node --check src/agent/tools/humanHandoff.js && node --check src/agent/tools/productCompare.js && node --check src/agent/tools/sizeGuide.js && node --check src/agent/tools/recommender.js && node --check src/agent/tools/wishlist.js && node --check src/agent/tools/orderDraft.js && node --check src/routes/chat.js && node --check src/routes/experience.js && node --check src/routes/facebook.js",
     "test": "node --test"
   },
   "engines": {

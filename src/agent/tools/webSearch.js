@@ -19,8 +19,10 @@ export function createWebSearchTool() {
   // which fails strict tool-call validation before Tavily can run.
   return tool(
     async ({ query }) => {
-      const result = await tavily.invoke({ query });
-      return typeof result === "string" ? result : JSON.stringify(result);
+      const searchedAt = new Date().toISOString();
+      const currentDate = searchedAt.slice(0, 10);
+      const result = await tavily.invoke({ query: `Current date: ${currentDate}. ${query}` });
+      return JSON.stringify({ searchedAt, result });
     },
     {
       name: "tavily_search",

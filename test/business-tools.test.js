@@ -58,6 +58,17 @@ test("a provider-supplied zero maximum price is treated as no budget filter", as
   assert.ok(result.products.every((product) => product.price > 0));
 });
 
+test("generic model-supplied category words do not hide valid catalogue matches", () => {
+  const products = searchCatalogue({ query: "blue Eid outfit", category: "outfit", color: "blue", occasion: "eid", size: "L", maxPrice: 2500 });
+  assert.ok(products.some((product) => product.id === "SF-KURTI-101"));
+});
+
+test("empty optional handoff customer name is accepted", async () => {
+  const { humanHandoffTool } = await import("../src/agent/tools/humanHandoff.js");
+  const result = JSON.parse(await humanHandoffTool.invoke({ reason: "Damaged item", customerName: "" }));
+  assert.equal(result.status, "handoff_requested");
+});
+
 test("inventory reports an exact listed variant and stock quantity", () => {
   const result = checkInventory({ productId: "SF-KURTI-101", color: "blue", size: "M" });
   assert.equal(result.found, true);

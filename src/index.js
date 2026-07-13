@@ -9,6 +9,8 @@ import { getConfiguredToolNames, getLlmConfiguration } from "./agent/agent.js";
 import { getMemoryStatus } from "./agent/memory.js";
 import { chatRouter } from "./routes/chat.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
+import { experienceRouter } from "./routes/experience.js";
+import { facebookRouter } from "./routes/facebook.js";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -23,7 +25,12 @@ const staticDirectory = fs.existsSync(frontendBuildDirectory)
 
 app.disable("x-powered-by");
 app.use(cors());
-app.use(express.json({ limit: "50kb" }));
+app.use(express.json({
+  limit: "50kb",
+  verify: (req, _res, buffer) => {
+    req.rawBody = buffer;
+  },
+}));
 app.use((req, res, next) => {
   req.requestId = crypto.randomUUID();
   res.setHeader("X-Request-Id", req.requestId);
@@ -42,11 +49,14 @@ app.get("/health", (req, res) => {
     llmModel: llm.model,
     toolsConfigured: getConfiguredToolNames(),
     memory: getMemoryStatus(),
+    facebookMessengerConfigured: Boolean(process.env.FACEBOOK_VERIFY_TOKEN && process.env.FACEBOOK_PAGE_ACCESS_TOKEN),
     timestamp: new Date().toISOString(),
   });
 });
 
 app.use("/chat", chatRouter);
+app.use("/api", experienceRouter);
+app.use("/webhooks/facebook", facebookRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 

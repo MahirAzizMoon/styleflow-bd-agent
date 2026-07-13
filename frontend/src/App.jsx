@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { deleteMemory, getHealth, inspectMemory, sendChat } from "./api.js";
+import { deleteMemory, getHealth, inspectMemory, sendChat, submitFeedback } from "./api.js";
 import ChatWindow from "./components/ChatWindow.jsx";
 import Composer from "./components/Composer.jsx";
 import MemoryPanel from "./components/MemoryPanel.jsx";
+import AdminPanel from "./components/AdminPanel.jsx";
 
 const CONVERSATION_KEY = "styleflow.conversationId";
 const MESSAGES_KEY = "styleflow.messages";
@@ -22,6 +23,7 @@ export default function App() {
   const [messages, setMessages] = useState(loadMessages);
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState(null);
+  const [adminOpen, setAdminOpen] = useState(false);
 
   useEffect(() => {
     sessionStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
@@ -49,6 +51,10 @@ export default function App() {
           role: "assistant",
           content: data.response.content,
           toolsUsed: data.metadata.toolsUsed,
+          products: data.metadata.products,
+          handoff: data.metadata.handoff,
+          orderDraft: data.metadata.orderDraft,
+          wishlist: data.metadata.wishlist,
         },
       ]);
     } catch (error) {
@@ -83,6 +89,10 @@ export default function App() {
     return result;
   }
 
+  function handleFeedback(rating) {
+    submitFeedback(rating).catch(() => {});
+  }
+
   return (
     <div className="app-shell">
       <MemoryPanel
@@ -104,6 +114,7 @@ export default function App() {
               <span className="status-dot" />
               {health?.status === "ok" ? "Online" : "Connecting"}
             </div>
+            <button className="insights-button" type="button" onClick={() => setAdminOpen(true)}>Insights</button>
             <div className="thread-label" title={conversationId || "No active conversation"}>
               <span>Thread</span>
               <strong>{conversationId ? conversationId.slice(0, 12) : "New"}</strong>
@@ -114,9 +125,10 @@ export default function App() {
           </div>
         </header>
 
-        <ChatWindow messages={messages} loading={loading} onSuggestion={handleSend} />
+        <ChatWindow messages={messages} loading={loading} onSuggestion={handleSend} onFeedback={handleFeedback} />
         <Composer onSend={handleSend} loading={loading} />
       </main>
+      <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} />
     </div>
   );
 }

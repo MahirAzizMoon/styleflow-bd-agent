@@ -2,12 +2,15 @@ import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble.jsx";
 
 const suggestions = [
-  "Show me an Eid outfit in blue under ৳2,500, size L.",
-  "Is the Nilima Kurti available in blue, size M?",
-  "What are your delivery charges outside Dhaka?",
+  "Recommend an Eid outfit in blue under ৳2,500, size L.",
+  "Compare SF-KURTI-101 and SF-DRESS-702.",
+  "My chest is 41 inches. Which size should I try?",
+  "Show my wishlist.",
+  "Prepare a draft for two cream Shurjo Panjabis, size L, inside Dhaka.",
+  "I received a damaged item and need a human seller.",
 ];
 
-export default function ChatWindow({ messages, loading, onSuggestion }) {
+export default function ChatWindow({ messages, loading, onSuggestion, onFeedback }) {
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -46,7 +49,7 @@ export default function ChatWindow({ messages, loading, onSuggestion }) {
           </div>
         </div>
       ) : (
-        messages.map((message) => <MessageBubble key={message.id} message={message} />)
+        messages.map((message) => <MessageBubble key={message.id} message={message} onAction={onSuggestion} onFeedback={onFeedback} />)
       )}
       {loading && (
         <article className="message-row assistant loading-row">

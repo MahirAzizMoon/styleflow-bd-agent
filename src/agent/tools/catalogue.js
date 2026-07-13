@@ -5,6 +5,20 @@ import { PRODUCTS } from "../../data/store.js";
 // Some OpenAI-compatible providers serialize omitted optional tool fields as
 // empty strings. Treat those as absent filters instead of failing the request.
 const optionalText = z.string().trim().optional();
+const CATEGORY_ALIASES = new Map([
+  ["kurta", "panjabi"],
+  ["punjabi", "panjabi"],
+  ["three piece", "three-piece"],
+  ["3 piece", "three-piece"],
+]);
+const CATEGORIES = new Set(PRODUCTS.map((product) => product.category));
+
+function normalizeCategory(category) {
+  if (!category) return undefined;
+  const value = category.toLowerCase().trim();
+  const mapped = CATEGORY_ALIASES.get(value) || value;
+  return CATEGORIES.has(mapped) ? mapped : undefined;
+}
 
 function contains(value, query) {
   return value.toLowerCase().includes(query.toLowerCase());
@@ -19,6 +33,7 @@ function matchesNaturalQuery(value, query) {
 
 export function searchCatalogue({ query, category, color, size, occasion, maxPrice }) {
   const normalizedSize = size?.toUpperCase();
+  const normalizedCategory = normalizeCategory(category);
   // Some tool-calling models emit 0 for an omitted optional number. Treat it
   // as "no budget supplied" instead of rejecting the entire model response.
   const normalizedMaxPrice = maxPrice > 0 ? maxPrice : undefined;
@@ -32,7 +47,7 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
       ...product.variants.flatMap((variant) => [variant.color, variant.size]),
     ].join(" ");
     if (query && !matchesNaturalQuery(searchable, query)) return false;
-    if (category && !contains(product.category, category)) return false;
+    if (normalizedCategory && !contains(product.category, normalizedCategory)) return false;
     if (occasion && !product.occasions.some((item) => contains(item, occasion))) return false;
     if (normalizedMaxPrice !== undefined && product.price > normalizedMaxPrice) return false;
     if (color && !product.variants.some((variant) => contains(variant.color, color))) return false;
@@ -45,6 +60,7 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
     description: product.description,
     price: product.price,
     currency: "BDT",
+    imageUrl: product.category === "panjabi" || product.category === "shirt" ? "/boutique-rack.jpg" : "/boutique-hero.jpg",
     occasions: product.occasions,
     availableVariants: product.variants.filter((variant) => variant.stock > 0),
   }));

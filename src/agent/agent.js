@@ -12,6 +12,11 @@ import { humanHandoffTool } from "./tools/humanHandoff.js";
 import { inventoryCheckTool } from "./tools/inventory.js";
 import { storePolicyTool } from "./tools/storePolicy.js";
 import { createWebSearchTool } from "./tools/webSearch.js";
+import { productCompareTool } from "./tools/productCompare.js";
+import { sizeGuideTool } from "./tools/sizeGuide.js";
+import { outfitRecommendationTool } from "./tools/recommender.js";
+import { wishlistTool } from "./tools/wishlist.js";
+import { orderDraftTool } from "./tools/orderDraft.js";
 
 let cachedAgent;
 let cachedToolNames = [];
@@ -33,7 +38,7 @@ export function getLlmConfiguration() {
 }
 
 function buildTools() {
-  const tools = [catalogueSearchTool, inventoryCheckTool, storePolicyTool, calculatorTool, humanHandoffTool];
+  const tools = [catalogueSearchTool, inventoryCheckTool, productCompareTool, outfitRecommendationTool, sizeGuideTool, wishlistTool, orderDraftTool, storePolicyTool, calculatorTool, humanHandoffTool];
 
   if (process.env.TAVILY_API_KEY) {
     tools.push(createWebSearchTool());
@@ -104,6 +109,6 @@ export function getAgent() {
 
 export function getConfiguredToolNames() {
   if (cachedToolNames.length > 0) return cachedToolNames;
-  const tools = ["catalogue_search", "inventory_check", "store_policy", "calculator", "human_handoff"];
+  const tools = ["catalogue_search", "inventory_check", "product_compare", "outfit_recommendation", "size_guide", "wishlist", "order_draft", "store_policy", "calculator", "human_handoff"];
   return process.env.TAVILY_API_KEY ? [...tools, "tavily_search"] : tools;
 }

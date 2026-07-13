@@ -7,7 +7,10 @@ import {
   getConversationMemory,
   validateConversationId,
 } from "../agent/memory.js";
-import { getFinalAnswer, getToolsUsed } from "../utils/messageContent.js";
+import { getFinalAnswer, getRichResponseData, getToolsUsed } from "../utils/messageContent.js";
+import { runWithConversation } from "../utils/requestContext.js";
+import { recordChat, recordFailure } from "../services/analytics.js";
+import { clearShoppingState } from "../services/shoppingState.js";
 
 export const chatRouter = Router();
 
@@ -61,16 +64,18 @@ chatRouter.post("/", async (req, res, next) => {
       })
     );
 
-    const result = await agent.invoke(
+    const result = await runWithConversation(conversationId, () => agent.invoke(
       { messages: [{ role: "user", content: message }] },
       createThreadConfig(conversationId)
-    );
+    ));
 
     const toolsUsed = getToolsUsed(result.messages);
     const content = getFinalAnswer(result.messages);
+    const richData = getRichResponseData(result.messages);
     const durationMs = Date.now() - startedAt;
     const completedAt = new Date().toISOString();
     const memory = await getConversationMemory(conversationId);
+    recordChat({ toolsUsed, durationMs, products: richData.products });
 
     console.log(
       JSON.stringify({
@@ -107,9 +112,11 @@ chatRouter.post("/", async (req, res, next) => {
         durationMs,
         receivedAt,
         completedAt,
+        ...richData,
       },
     });
   } catch (error) {
+    recordFailure();
     error.requestId = requestId;
     next(error);
   }
@@ -133,6 +140,7 @@ chatRouter.get("/:conversationId/memory", async (req, res, next) => {
 chatRouter.delete("/:conversationId/memory", async (req, res, next) => {
   try {
     const result = await clearConversationMemory(req.params.conversationId);
+    clearShoppingState(result.conversationId);
 
     return res.status(200).json({
       success: true,

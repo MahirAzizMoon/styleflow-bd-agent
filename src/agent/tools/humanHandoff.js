@@ -20,7 +20,7 @@ export const humanHandoffTool = tool(
     description: "Create a safe demo handoff reference when the customer requests a person, reports payment/order/damaged-item problems, or the agent cannot answer confidently.",
     schema: z.object({
       reason: z.string().trim().min(3),
-      customerName: z.string().trim().min(1).optional(),
+      customerName: z.string().trim().optional(),
     }),
   }
 );

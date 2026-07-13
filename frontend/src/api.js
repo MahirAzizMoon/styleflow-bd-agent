@@ -43,3 +43,14 @@ export function deleteMemory(conversationId) {
 export function getHealth() {
   return request("/health");
 }
+
+export function submitFeedback(rating) {
+  return request("/api/feedback", {
+    method: "POST",
+    body: JSON.stringify({ rating }),
+  });
+}
+
+export function getAnalytics() {
+  return request("/api/analytics");
+}

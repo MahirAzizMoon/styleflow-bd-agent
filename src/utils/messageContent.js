@@ -44,3 +44,33 @@ export function getToolsUsed(messages = []) {
 
   return [...tools];
 }
+
+export function getRichResponseData(messages = []) {
+  const products = [];
+  let handoff;
+  let orderDraft;
+  let wishlist;
+  const seen = new Set();
+
+  for (const message of messages) {
+    const isToolMessage = message?.getType?.() === "tool" || message?._getType?.() === "tool" || message?.type === "tool";
+    if (!isToolMessage) continue;
+    const raw = contentToText(message?.content).trim();
+    let payload;
+    try { payload = JSON.parse(raw); } catch { continue; }
+    const candidates = [
+      ...(Array.isArray(payload.products) ? payload.products : []),
+      ...(Array.isArray(payload.recommendations) ? payload.recommendations : []),
+    ];
+    for (const product of candidates) {
+      if (!product?.id || seen.has(product.id)) continue;
+      seen.add(product.id);
+      products.push(product);
+    }
+    if (payload.status === "handoff_requested") handoff = payload;
+    if (payload.status === "draft_only") orderDraft = payload;
+    if (payload.operation && Array.isArray(payload.products) && Object.hasOwn(payload, "count")) wishlist = payload;
+  }
+
+  return { products: products.slice(0, 8), handoff, orderDraft, wishlist };
+}

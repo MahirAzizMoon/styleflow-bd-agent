@@ -19,6 +19,8 @@ LangChain agent + Groq/OpenAI model
         ├─ direct answer
         ├─ catalogue_search
         ├─ inventory_check
+        ├─ product_compare / outfit_recommendation
+        ├─ size_guide / wishlist / order_draft
         ├─ store_policy
         ├─ calculator
         ├─ human_handoff
@@ -37,6 +39,7 @@ See `ARCHITECTURE.md` for a file-by-file walkthrough and Q&A guide.
 - LangChain v1 `createAgent` orchestration
 - Groq by default, with OpenAI as a configurable alternative
 - Zod-validated catalogue, inventory, policy, calculator, and handoff tools
+- Product comparison, personalized recommendations, size guidance, wishlist, and safe order drafts
 - 40 demo products across eight clothing categories with colour, size, and stock variants
 - Optional Tavily web search for current external information
 - Persistent, isolated conversation threads with LangGraph `SqliteSaver`
@@ -45,6 +48,8 @@ See `ARCHITECTURE.md` for a file-by-file walkthrough and Q&A guide.
 - Structured validation, provider, tool, and server errors
 - Request IDs, timing, tool-use, and failure logs
 - React + Vite frontend plus Postman/curl support
+- Visual product cards, quick actions, customer feedback, and demo analytics
+- Credential-gated Meta Messenger webhook adapter
 
 ## Project structure
 
@@ -87,7 +92,7 @@ GROQ_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
 
 # Optional OpenAI alternative
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
+OPENAI_MODEL=gpt-5.4-mini
 
 # Optional current-information search
 TAVILY_API_KEY=your_tavily_key
@@ -132,7 +137,7 @@ npm run build
 
 Restart the backend after the build. Express detects `frontend/dist` at startup and serves the complete React application at `http://localhost:3000`. If the build does not exist, it serves the lightweight `public/` fallback.
 
-The React UI provides conversation continuity through `sessionStorage`, tool badges, loading and error states, a new-conversation action, and a collapsible persistent-memory panel.
+The React UI provides conversation continuity through `sessionStorage`, product cards, wishlist and stock actions, order-draft and handoff panels, feedback controls, demo analytics, tool badges, loading and error states, and a collapsible persistent-memory panel.
 
 ## API endpoints
 
@@ -141,6 +146,10 @@ GET    /health
 POST   /chat
 GET    /chat/:conversationId/memory
 DELETE /chat/:conversationId/memory
+POST   /api/feedback
+GET    /api/analytics
+GET    /webhooks/facebook
+POST   /webhooks/facebook
 ```
 
 Example:
@@ -164,6 +173,10 @@ cd frontend && npm run build
 The automated suite covers all calculator operations, invalid values, SQLite thread accumulation, isolation, deletion, validation, and reading a checkpoint through a second saver instance to simulate restart.
 
 Import `postman_collection.json` for direct-answer, calculator, ambiguity, memory, invalid-input, and Tavily requests.
+
+## Optional Facebook Messenger connection
+
+The webhook adapter is implemented but stays inactive until Meta credentials are supplied. Set `FACEBOOK_VERIFY_TOKEN`, `FACEBOOK_PAGE_ACCESS_TOKEN`, and `FACEBOOK_APP_SECRET`, then register `https://your-domain/webhooks/facebook` in the Meta developer dashboard. The GET route handles webhook verification, the POST route verifies signed events, conversation memory is isolated by Facebook sender ID, and replies are sent through the Graph Send API. Meta app permissions and review are external requirements and are not bypassed by this demo.
 
 ## Render deployment
 
