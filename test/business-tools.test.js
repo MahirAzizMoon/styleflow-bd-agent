@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import test from "node:test";
 import { searchCatalogue } from "../src/agent/tools/catalogue.js";
 import { checkInventory } from "../src/agent/tools/inventory.js";
@@ -17,15 +18,16 @@ test("catalogue contains at least 40 unique complete products", () => {
   }
 });
 
-test("every catalogue category has a dedicated uploaded product image", () => {
-  const categoryImages = new Map();
+test("every catalogue product has its own ID-matched image file", () => {
+  const imageUrls = [];
   for (const product of PRODUCTS) {
     const imageUrl = getProductImageUrl(product);
-    assert.match(imageUrl, /^\/products\/SF-[A-Z]+-\d+\.(?:jpeg|png)$/);
-    categoryImages.set(product.category, imageUrl);
+    assert.match(imageUrl, new RegExp(`^/products/${product.id}\\.(?:jpeg|png)$`));
+    assert.ok(existsSync(new URL(`../frontend/public${imageUrl}`, import.meta.url)), `${imageUrl} is missing`);
+    imageUrls.push(imageUrl);
   }
-  assert.equal(categoryImages.size, 8);
-  assert.equal(new Set(categoryImages.values()).size, 8);
+  assert.equal(imageUrls.length, PRODUCTS.length);
+  assert.equal(new Set(imageUrls).size, PRODUCTS.length);
 });
 
 test("the first four kurtis have distinct product-specific images", () => {
