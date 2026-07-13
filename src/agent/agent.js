@@ -22,7 +22,7 @@ export function getLlmConfiguration() {
     return {
       provider,
       configured: Boolean(process.env.GROQ_API_KEY),
-      model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
+      model: process.env.GROQ_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct",
     };
   }
   return {

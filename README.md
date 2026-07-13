@@ -83,7 +83,7 @@ Configure `.env`:
 PORT=3000
 LLM_PROVIDER=groq
 GROQ_API_KEY=your_groq_key
-GROQ_MODEL=llama-3.1-8b-instant
+GROQ_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
 
 # Optional OpenAI alternative
 OPENAI_API_KEY=
