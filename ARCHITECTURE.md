@@ -36,41 +36,6 @@
 ## Why this is an agent
 
 The model is not called directly from the route for a single response. LangChain controls a loop in which the model can inspect context, choose a registered tool, receive the tool observation, and then produce a final answer. `metadata.toolsUsed` provides observable evidence of that decision.
-
-## Likely Q&A
-
-### Why use a singleton checkpointer?
-
-It gives all requests a consistent persistence service and avoids opening a new SQLite connection for every message. Thread isolation comes from `thread_id`, not from separate saver instances.
-
-### What is a `thread_id`?
-
-It is LangGraph's identifier for one checkpoint history. ChatFlow maps the public `conversationId` directly to it, so the same ID resumes a thread and another ID starts an isolated one.
-
-### How does memory survive restart?
-
-`SqliteSaver` writes checkpoints to `data/memory.db`. A new Node.js process opens the same file and loads the latest checkpoint for the supplied thread ID.
-
-### How does summarization work?
-
-The middleware counts approximate tokens. At the trigger, it asks the model to summarize older context, replaces those messages with a marked summary, and preserves recent messages. The memory endpoint detects the marker and exposes `summarized` plus a preview.
-
-### Why can the tool result not be hallucinated?
-
-The calculator computes deterministically and Tavily performs an external request. LangChain appends the returned observation as a tool message. The system prompt forbids inventing results, and the final answer is generated after the actual observation is present.
-
-### What happens if Tavily is absent?
-
-The server still starts and all ten local business/calculation tools remain registered. Only `tavily_search` is omitted from `/health`, so catalogue, stock, policy, arithmetic, recommendation, wishlist, order-draft, size-guide and handoff flows continue working.
-
-### Which model is used, and what are its limitations?
-
-The local default and public deployment use OpenAI `gpt-4.1-mini` through LangChain's `ChatOpenAI` integration, matching the faculty FAQ's recommended provider. The model was selected because it supports reliable structured tool calling while remaining suitable for this small demonstration agent. It is only one component: LangChain controls the agent loop, tools provide trusted observations, Express validates requests, and SQLite persists thread state. Limitations include provider quota/rate limits, occasional imperfect tool selection, and probabilistic long-history summarization.
-
-### What changed from RAM memory?
-
-Previously, restarting Node erased all `MemorySaver` state. Now SQLite persists it on disk. Setting `MEMORY_DB_PATH=:memory:` deliberately restores temporary behavior for isolated tests.
-
 ### Why is SQLite not ideal for multiple cloud instances?
 
 It is a local file. Multiple instances need shared durable storage and coordinated writes, so a production scale-out deployment should use a PostgreSQL checkpointer.
