@@ -25,17 +25,17 @@ const staticDirectory = fs.existsSync(frontendBuildDirectory)
 
 app.disable("x-powered-by");
 app.use(cors());
+app.use((req, res, next) => {
+  req.requestId = crypto.randomUUID();
+  res.setHeader("X-Request-Id", req.requestId);
+  next();
+});
 app.use(express.json({
   limit: "50kb",
   verify: (req, _res, buffer) => {
     req.rawBody = buffer;
   },
 }));
-app.use((req, res, next) => {
-  req.requestId = crypto.randomUUID();
-  res.setHeader("X-Request-Id", req.requestId);
-  next();
-});
 app.use(express.static(staticDirectory));
 
 app.get("/health", (req, res) => {

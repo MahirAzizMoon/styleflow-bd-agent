@@ -30,4 +30,4 @@ HTTP 200 deletes only the named thread and returns `cleared` and `deletedMessage
 
 ## Other routes and malformed JSON
 
-Unknown routes return HTTP 404 `NOT_FOUND`. Unexpected failures return HTTP 500 with a generic message. Memory uses a file-backed `SqliteSaver`: threads are isolated and survive server restarts when `MEMORY_DB_PATH` points to a file.
+Unknown routes return HTTP 404 `NOT_FOUND`. Malformed JSON and unexpected failures are handled centrally with a request ID and safe generic error; no stack trace or secret is returned. Memory uses a file-backed `SqliteSaver`: threads are isolated and survive server restarts when `MEMORY_DB_PATH` points to a file. Memory inspection hides tool observations and assistant messages that initiate tool calls, leaving the readable user/final-assistant transcript.

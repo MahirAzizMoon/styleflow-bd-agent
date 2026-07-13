@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test, { after } from "node:test";
-import { AIMessage } from "@langchain/core/messages";
+import { AIMessage, ToolMessage } from "@langchain/core/messages";
 import { END, MessagesValue, START, StateGraph, StateSchema } from "@langchain/langgraph";
 
 const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "chatflow-memory-"));
@@ -24,6 +24,24 @@ const TestState = new StateSchema({ messages: MessagesValue });
 const graph = new StateGraph(TestState)
   .addNode("reply", (state) => ({
     messages: [new AIMessage(`I remember ${state.messages.length} message(s).`)],
+  }))
+  .addEdge(START, "reply")
+  .addEdge("reply", END)
+  .compile({ checkpointer: getMemoryCheckpointer() });
+
+const toolNarrationGraph = new StateGraph(TestState)
+  .addNode("reply", () => ({
+    messages: [
+      new AIMessage({
+        content: "I will check the trusted catalogue now.",
+        tool_calls: [{ name: "catalogue_search", args: {}, id: "audit-tool-call" }],
+      }),
+      new ToolMessage({
+        content: '{"found":1}',
+        tool_call_id: "audit-tool-call",
+      }),
+      new AIMessage("The requested product is in the catalogue."),
+    ],
   }))
   .addEdge(START, "reply")
   .addEdge("reply", END)
@@ -75,4 +93,20 @@ test("unsafe conversation IDs are rejected", () => {
   assert.throws(() => validateConversationId("invalid thread"), /may contain only/);
   assert.throws(() => validateConversationId("__proto__"), /may contain only/);
   assert.throws(() => validateConversationId(42), /non-empty string/);
+});
+
+test("memory inspection hides tool observations and tool-call narration", async () => {
+  const threadId = `tool-memory-${crypto.randomUUID()}`;
+  await toolNarrationGraph.invoke(
+    { messages: [{ role: "user", content: "Check the catalogue." }] },
+    createThreadConfig(threadId)
+  );
+
+  const memory = await getConversationMemory(threadId);
+  assert.equal(memory.messageCount, 2);
+  assert.deepEqual(memory.messages, [
+    { role: "user", content: "Check the catalogue." },
+    { role: "assistant", content: "The requested product is in the catalogue." },
+  ]);
+  await clearConversationMemory(threadId);
 });

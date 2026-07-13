@@ -21,6 +21,15 @@ import { orderDraftTool } from "./tools/orderDraft.js";
 let cachedAgent;
 let cachedToolNames = [];
 
+const MEMORY_SUMMARY_PROMPT = `Summarize the conversation below for future turns.
+Preserve exact user-provided facts such as names, project titles, sizes, budgets,
+colors, occasions, preferences, delivery areas, and unresolved requests. Clearly
+separate durable user facts from topics that were only discussed. Preserve exact
+wording for distinctive names or phrases when practical. Do not invent facts.
+
+Conversation:
+{messages}`;
+
 export function getLlmConfiguration() {
   const provider = (process.env.LLM_PROVIDER || "groq").toLowerCase();
   if (provider === "groq") {
@@ -100,6 +109,7 @@ export function getAgent() {
         model,
         trigger: { tokens: summaryTriggerTokens },
         keep: { messages: recentMessagesToKeep },
+        summaryPrompt: MEMORY_SUMMARY_PROMPT,
       }),
     ],
   });

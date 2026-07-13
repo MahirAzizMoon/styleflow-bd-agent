@@ -92,7 +92,7 @@ GROQ_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
 
 # Optional OpenAI alternative
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5.4-mini
+OPENAI_MODEL=gpt-4.1-mini
 
 # Optional current-information search
 TAVILY_API_KEY=your_tavily_key
@@ -173,6 +173,10 @@ cd frontend && npm run build
 The automated suite covers all calculator operations, invalid values, SQLite thread accumulation, isolation, deletion, validation, and reading a checkpoint through a second saver instance to simulate restart.
 
 Import `postman_collection.json` for direct-answer, calculator, ambiguity, memory, invalid-input, and Tavily requests.
+
+### Faculty model note
+
+The deployed model is Meta Llama 4 Scout served by Groq. `ChatOpenAI` is used as an OpenAI-compatible LangChain adapter and does not mean the live model is OpenAI. The architecture follows the Hugging Face/Ollama conditions in the faculty FAQ—LangChain orchestrates tool use, the LLM is one component, and the project is backend-first rather than turnkey or UI-only—but Groq itself is not explicitly named in the allowed-provider list. Explain this limitation honestly or select `LLM_PROVIDER=openai` with a funded OpenAI key if strict provider compliance is required.
 
 ## Optional Facebook Messenger connection
 

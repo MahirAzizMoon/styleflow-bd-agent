@@ -57,7 +57,7 @@ The response exposes safe user/assistant history, counts, and summarization stat
 }
 ```
 
-Tool observations and system messages are intentionally hidden.
+Tool observations, system messages, and intermediate assistant messages that initiate tool calls are intentionally hidden. The endpoint shows user messages and final assistant responses.
 
 ## Demonstrate restart persistence
 
@@ -84,7 +84,7 @@ GET /chat/:conversationId/memory
 
 It should report `summarized: true` and a `summaryPreview` of about 200 characters. Ask about the first fact to show that it remains available through the summary. Restore the normal threshold after the demo.
 
-The middleware permanently replaces older messages with a marked summary message while keeping recent messages. `getConversationMemory` detects LangChain's `lc_source: "summarization"` marker defensively, with a summary-prefix fallback.
+The middleware permanently replaces older messages with a marked summary message while keeping recent messages. Its custom summary prompt prioritizes exact user facts such as names, project titles, sizes, budgets, colours and occasions. `getConversationMemory` detects LangChain's `lc_source: "summarization"` marker defensively, with a summary-prefix fallback. Summarization is model-generated, so important facts should still be tested before a live demonstration.
 
 ## Production note
 

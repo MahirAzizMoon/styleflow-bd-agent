@@ -88,6 +88,16 @@ function roleForMessage(message) {
   return "unknown";
 }
 
+function hasToolCalls(message) {
+  const calls =
+    message?.tool_calls ??
+    message?.toolCalls ??
+    message?.additional_kwargs?.tool_calls ??
+    message?.kwargs?.tool_calls ??
+    message?.kwargs?.additional_kwargs?.tool_calls;
+  return Array.isArray(calls) && calls.length > 0;
+}
+
 /**
  * Returns a safe view of remembered user/assistant messages for demo and
  * debugging. Tool observations and system messages are intentionally hidden.
@@ -113,13 +123,16 @@ export async function getConversationMemory(conversationId) {
     .map((message) => ({
       role: roleForMessage(message),
       content: contentToText(message?.content ?? message?.kwargs?.content).trim(),
+      hasToolCalls: hasToolCalls(message),
     }))
     .filter(
       (message) =>
         (message.role === "user" || message.role === "assistant") &&
         message.content &&
+        !message.hasToolCalls &&
         !message.content.startsWith("Here is a summary of the conversation to date:")
-    );
+    )
+    .map(({ role, content }) => ({ role, content }));
 
   return {
     conversationId: config.configurable.thread_id,

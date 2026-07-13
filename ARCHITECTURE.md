@@ -22,6 +22,11 @@
 - `src/data/store.js` - fictional catalogue, stock, and business policy source of truth.
 - `src/agent/tools/catalogue.js` - filtered catalogue discovery.
 - `src/agent/tools/inventory.js` - exact product variant and stock checks.
+- `src/agent/tools/productCompare.js` - trusted multi-product comparisons.
+- `src/agent/tools/recommender.js` - preference-based catalogue recommendations.
+- `src/agent/tools/sizeGuide.js` - measurement guidance with a fit disclaimer.
+- `src/agent/tools/wishlist.js` - conversation-scoped demo favourites.
+- `src/agent/tools/orderDraft.js` - safe, non-binding shopping summaries.
 - `src/agent/tools/storePolicy.js` - controlled store policy retrieval.
 - `src/agent/tools/humanHandoff.js` - safe demo escalation reference.
 - `src/agent/tools/calculator.js` - deterministic arithmetic tool.
@@ -56,7 +61,11 @@ The calculator computes deterministically and Tavily performs an external reques
 
 ### What happens if Tavily is absent?
 
-The server still starts. Only `calculator` is registered and `/health` omits `tavily_search`. The prompt tells the agent to use Tavily only when available.
+The server still starts and all ten local business/calculation tools remain registered. Only `tavily_search` is omitted from `/health`, so catalogue, stock, policy, arithmetic, recommendation, wishlist, order-draft, size-guide and handoff flows continue working.
+
+### Which model is used, and what are its limitations?
+
+The deployed configuration uses Meta Llama 4 Scout through Groq's OpenAI-compatible API. Groq was selected for fast responses and accessible quota; `ChatOpenAI` is the LangChain adapter, not a claim that the model is from OpenAI. Limitations include provider quotas, occasional imperfect tool choices, and imperfect long-history summarization. OpenAI remains a configurable alternative. Because the faculty FAQ explicitly names OpenAI, Hugging Face and Ollama but not Groq, provider eligibility should be explained honestly rather than misrepresented.
 
 ### What changed from RAM memory?
 

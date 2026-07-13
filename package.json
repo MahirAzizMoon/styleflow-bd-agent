@@ -29,8 +29,5 @@
     "express": "^5.2.1",
     "langchain": "^1.5.3",
     "zod": "^4.4.3"
-  },
-  "overrides": {
-    "better-sqlite3": "11.10.0"
   }
 }
