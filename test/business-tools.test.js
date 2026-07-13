@@ -69,6 +69,14 @@ test("empty optional handoff customer name is accepted", async () => {
   assert.equal(result.status, "handoff_requested");
 });
 
+test("an unfiltered visual catalogue payload includes card images and is capped", async () => {
+  const { catalogueSearchTool } = await import("../src/agent/tools/catalogue.js");
+  const result = JSON.parse(await catalogueSearchTool.invoke({ query: "", category: "", color: "", size: "", occasion: "", maxPrice: 0 }));
+  assert.equal(result.returned, 8);
+  assert.equal(result.products.length, 8);
+  assert.ok(result.products.every((product) => product.imageUrl?.startsWith("/")));
+});
+
 test("inventory reports an exact listed variant and stock quantity", () => {
   const result = checkInventory({ productId: "SF-KURTI-101", color: "blue", size: "M" });
   assert.equal(result.found, true);

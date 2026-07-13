@@ -69,15 +69,17 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
 export const catalogueSearchTool = tool(
   async (filters) => {
     const matches = searchCatalogue(filters);
+    const displayedProducts = matches.slice(0, 8);
     return JSON.stringify({
       found: matches.length,
-      products: matches,
+      returned: displayedProducts.length,
+      products: displayedProducts,
       note: matches.length ? "All results come from the StyleFlow BD demo catalogue." : "No catalogue product matched every supplied filter.",
     });
   },
   {
     name: "catalogue_search",
-    description: "Search the trusted StyleFlow BD product catalogue by text, category, color, size, occasion, or maximum budget. Use this before recommending products or stating prices.",
+    description: "Search the trusted StyleFlow BD product catalogue by text, category, color, size, occasion, or maximum budget. The website automatically renders returned products as visual cards. Use this for every request to show product cards, pictures, images, or a visual catalogue, and before recommending products or stating prices.",
     schema: z.object({
       query: optionalText.describe("Product name, ID, or general search words"),
       category: optionalText,
