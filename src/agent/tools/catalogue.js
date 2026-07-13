@@ -1,6 +1,6 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { PRODUCTS } from "../../data/store.js";
+import { getProductImageUrl, PRODUCTS } from "../../data/store.js";
 
 // Some OpenAI-compatible providers serialize omitted optional tool fields as
 // empty strings. Treat those as absent filters instead of failing the request.
@@ -60,7 +60,7 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
     description: product.description,
     price: product.price,
     currency: "BDT",
-    imageUrl: product.category === "panjabi" || product.category === "shirt" ? "/boutique-rack.jpg" : "/boutique-hero.jpg",
+    imageUrl: getProductImageUrl(product),
     occasions: product.occasions,
     availableVariants: product.variants.filter((variant) => variant.stock > 0),
   }));

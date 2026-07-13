@@ -48,7 +48,7 @@ See `ARCHITECTURE.md` for a file-by-file walkthrough and Q&A guide.
 - Structured validation, provider, tool, and server errors
 - Request IDs, timing, tool-use, and failure logs
 - React + Vite frontend plus Postman/curl support
-- Visual product cards, quick actions, customer feedback, and demo analytics
+- Visual product cards with eight category-specific outfit photographs, quick actions, customer feedback, and demo analytics
 - Credential-gated Meta Messenger webhook adapter
 
 ## Project structure

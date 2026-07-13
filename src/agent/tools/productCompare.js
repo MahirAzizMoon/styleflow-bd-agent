@@ -1,6 +1,6 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { PRODUCTS } from "../../data/store.js";
+import { getProductImageUrl, PRODUCTS } from "../../data/store.js";
 
 export function compareProducts(productIds) {
   const ids = productIds.map((id) => id.toLowerCase());
@@ -15,7 +15,7 @@ export function compareProducts(productIds) {
     colors: [...new Set(product.variants.map((variant) => variant.color))],
     sizes: [...new Set(product.variants.map((variant) => variant.size))],
     totalStock: product.variants.reduce((sum, variant) => sum + variant.stock, 0),
-    imageUrl: product.category === "panjabi" || product.category === "shirt" ? "/boutique-rack.jpg" : "/boutique-hero.jpg",
+    imageUrl: getProductImageUrl(product),
   }));
   return { found: products.length, requested: productIds.length, products };
 }

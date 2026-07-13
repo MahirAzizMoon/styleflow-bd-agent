@@ -4,7 +4,7 @@ import { searchCatalogue } from "../src/agent/tools/catalogue.js";
 import { checkInventory } from "../src/agent/tools/inventory.js";
 import { getStorePolicy } from "../src/agent/tools/storePolicy.js";
 import { createHandoff } from "../src/agent/tools/humanHandoff.js";
-import { PRODUCTS } from "../src/data/store.js";
+import { getProductImageUrl, PRODUCTS } from "../src/data/store.js";
 
 test("catalogue contains at least 40 unique complete products", () => {
   assert.ok(PRODUCTS.length >= 40);
@@ -15,6 +15,17 @@ test("catalogue contains at least 40 unique complete products", () => {
     assert.ok(product.occasions.length > 0);
     assert.ok(product.variants.length > 0);
   }
+});
+
+test("every catalogue category has a dedicated uploaded product image", () => {
+  const categoryImages = new Map();
+  for (const product of PRODUCTS) {
+    const imageUrl = getProductImageUrl(product);
+    assert.match(imageUrl, /^\/products\/SF-[A-Z]+-\d+\.jpeg$/);
+    categoryImages.set(product.category, imageUrl);
+  }
+  assert.equal(categoryImages.size, 8);
+  assert.equal(new Set(categoryImages.values()).size, 8);
 });
 
 test("catalogue search respects budget, occasion, color, and size", () => {

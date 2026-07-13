@@ -19,6 +19,21 @@ export const STORE = {
     "The assistant can prepare an order summary but cannot confirm payment or place an order. A human seller must confirm the final order, address, phone number, and stock.",
 };
 
+const CATEGORY_IMAGE_URLS = {
+  kurti: "/products/SF-KURTI-101.jpeg",
+  "three-piece": "/products/SF-THREE-204.jpeg",
+  saree: "/products/SF-SAREE-302.jpeg",
+  abaya: "/products/SF-ABAYA-405.jpeg",
+  shirt: "/products/SF-SHIRT-503.jpeg",
+  panjabi: "/products/SF-PANJABI-604.jpeg",
+  dress: "/products/SF-DRESS-701.jpeg",
+  top: "/products/SF-TOP-801.jpeg",
+};
+
+export function getProductImageUrl(product) {
+  return CATEGORY_IMAGE_URLS[product?.category] || "/boutique-hero.jpg";
+}
+
 function catalogueItem(id, name, category, description, occasions, price, colors, sizes, stockSeed) {
   return {
     id,

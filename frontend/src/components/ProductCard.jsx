@@ -3,7 +3,12 @@ export default function ProductCard({ product, onAction }) {
   const sizes = product.sizes || [...new Set((product.availableVariants || []).map((item) => item.size))];
   return (
     <article className="product-card">
-      <div className="product-image" style={{ backgroundImage: `url(${product.imageUrl || "/boutique-hero.jpg"})` }}>
+      <div className="product-image">
+        <img
+          src={product.imageUrl || "/boutique-hero.jpg"}
+          alt={`${product.name} catalogue outfit`}
+          loading="lazy"
+        />
         <span>{product.category}</span>
       </div>
       <div className="product-card-body">

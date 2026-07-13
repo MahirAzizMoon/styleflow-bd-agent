@@ -1,4 +1,4 @@
-import { PRODUCTS, STORE } from "../data/store.js";
+import { getProductImageUrl, PRODUCTS, STORE } from "../data/store.js";
 
 const wishlists = new Map();
 const orderDrafts = new Map();
@@ -19,9 +19,7 @@ function publicProduct(product) {
     occasions: product.occasions,
     price: product.price,
     currency: "BDT",
-    imageUrl: product.category === "panjabi" || product.category === "shirt"
-      ? "/boutique-rack.jpg"
-      : "/boutique-hero.jpg",
+    imageUrl: getProductImageUrl(product),
   };
 }
 
