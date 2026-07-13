@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble.jsx";
+import { getLatestProductMessageId } from "../chatMessages.js";
 
 const suggestions = [
   "Recommend an Eid outfit in blue under ৳2,500, size L.",
@@ -12,6 +13,7 @@ const suggestions = [
 
 export default function ChatWindow({ messages, loading, onSuggestion, onFeedback }) {
   const endRef = useRef(null);
+  const latestProductMessageId = getLatestProductMessageId(messages);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -49,7 +51,15 @@ export default function ChatWindow({ messages, loading, onSuggestion, onFeedback
           </div>
         </div>
       ) : (
-        messages.map((message) => <MessageBubble key={message.id} message={message} onAction={onSuggestion} onFeedback={onFeedback} />)
+        messages.map((message) => (
+          <MessageBubble
+            key={message.id}
+            message={message}
+            showProducts={message.id === latestProductMessageId}
+            onAction={onSuggestion}
+            onFeedback={onFeedback}
+          />
+        ))
       )}
       {loading && (
         <article className="message-row assistant loading-row">

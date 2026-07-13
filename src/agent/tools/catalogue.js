@@ -77,11 +77,10 @@ export function searchCatalogue({ query, category, color, size, occasion, maxPri
 export const catalogueSearchTool = tool(
   async (filters) => {
     const matches = searchCatalogue(filters);
-    const displayedProducts = matches.slice(0, 8);
     return JSON.stringify({
       found: matches.length,
-      returned: displayedProducts.length,
-      products: displayedProducts,
+      returned: matches.length,
+      products: matches,
       note: matches.length ? "All results come from the StyleFlow BD demo catalogue." : "No catalogue product matched every supplied filter.",
     });
   },

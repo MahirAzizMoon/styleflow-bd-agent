@@ -31,10 +31,22 @@ export function getFinalAnswer(messages = []) {
   return "The agent completed the request but did not return a text response.";
 }
 
+function messageType(message) {
+  return message?.getType?.() || message?._getType?.() || message?.type || message?.role;
+}
+
+export function getLatestTurnMessages(messages = []) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const type = messageType(messages[index]);
+    if (type === "human" || type === "user") return messages.slice(index);
+  }
+  return messages;
+}
+
 export function getToolsUsed(messages = []) {
   const tools = new Set();
 
-  for (const message of messages) {
+  for (const message of getLatestTurnMessages(messages)) {
     const calls = message?.tool_calls ?? message?.additional_kwargs?.tool_calls ?? [];
     for (const call of calls) {
       const name = call?.name ?? call?.function?.name;
@@ -52,7 +64,7 @@ export function getRichResponseData(messages = []) {
   let wishlist;
   const seen = new Set();
 
-  for (const message of messages) {
+  for (const message of getLatestTurnMessages(messages)) {
     const isToolMessage = message?.getType?.() === "tool" || message?._getType?.() === "tool" || message?.type === "tool";
     if (!isToolMessage) continue;
     const raw = contentToText(message?.content).trim();
@@ -72,5 +84,5 @@ export function getRichResponseData(messages = []) {
     if (payload.operation && Array.isArray(payload.products) && Object.hasOwn(payload, "count")) wishlist = payload;
   }
 
-  return { products: products.slice(0, 8), handoff, orderDraft, wishlist };
+  return { products, handoff, orderDraft, wishlist };
 }

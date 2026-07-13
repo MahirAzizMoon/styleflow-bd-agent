@@ -109,11 +109,11 @@ test("empty optional handoff customer name is accepted", async () => {
   assert.equal(result.status, "handoff_requested");
 });
 
-test("an unfiltered visual catalogue payload includes card images and is capped", async () => {
+test("an unfiltered visual catalogue payload includes all product cards", async () => {
   const { catalogueSearchTool } = await import("../src/agent/tools/catalogue.js");
   const result = JSON.parse(await catalogueSearchTool.invoke({ query: "", category: "", color: "", size: "", occasion: "", maxPrice: 0 }));
-  assert.equal(result.returned, 8);
-  assert.equal(result.products.length, 8);
+  assert.equal(result.returned, PRODUCTS.length);
+  assert.equal(result.products.length, PRODUCTS.length);
   assert.ok(result.products.every((product) => product.imageUrl?.startsWith("/")));
 });
 

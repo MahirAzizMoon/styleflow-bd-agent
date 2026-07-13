@@ -1,6 +1,6 @@
 import ProductCard from "./ProductCard.jsx";
 
-export default function MessageBubble({ message, onAction, onFeedback }) {
+export default function MessageBubble({ message, showProducts = true, onAction, onFeedback }) {
   const isError = message.role === "error";
   const label = isError ? "Error" : message.role === "user" ? "You" : "StyleFlow BD";
 
@@ -10,7 +10,7 @@ export default function MessageBubble({ message, onAction, onFeedback }) {
       <div className="message-bubble">
         {isError && <strong className="error-code">{message.code}</strong>}
         <p>{message.content}</p>
-        {message.products?.length > 0 && (
+        {showProducts && message.products?.length > 0 && (
           <div className="product-grid">
             {message.products.map((product) => <ProductCard key={product.id} product={product} onAction={onAction} />)}
           </div>
